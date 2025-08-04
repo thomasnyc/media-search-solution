@@ -1,0 +1,7 @@
+.aspect/**
+bazel-bin/**
+bazel-gcp-go-media-search/**
+bazel-out/**
+bazel-testlogs/**
+**/.terraform/**
+docs/**

@@ -1,0 +1,28 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "cloud",
+    srcs = [
+        "config.go",
+        "gcs.go",
+        "pub_sub_listener.go",
+        "state.go",
+        "utils.go",
+        "wrappers.go",
+    ],
+    importpath = "github.com/GoogleCloudPlatform/solutions/media/pkg/cloud",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/cor",
+        "@com_github_burntsushi_toml//:toml",
+        "@com_google_cloud_go_bigquery//:bigquery",
+        "@com_google_cloud_go_pubsub//:pubsub",
+        "@com_google_cloud_go_storage//:storage",
+        "@io_opentelemetry_go_otel//:otel",
+        "@io_opentelemetry_go_otel//attribute",
+        "@io_opentelemetry_go_otel//codes",
+        "@io_opentelemetry_go_otel_metric//:metric",
+        "@org_golang_google_genai//:genai",
+        "@org_golang_x_time//rate",
+    ],
+)

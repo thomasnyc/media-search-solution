@@ -1,0 +1,23 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "services",
+    srcs = [
+        "media.go",
+        "queries.go",
+        "search.go",
+    ],
+    data = [
+        "//:copy_ffmpeg",
+        "//configs:.env.local.toml",
+        "//configs:.env.toml",
+    ],
+    importpath = "github.com/GoogleCloudPlatform/solutions/media/pkg/services",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/model",
+        "@com_google_cloud_go_bigquery//:bigquery",
+        "@org_golang_google_api//iterator",
+        "@org_golang_google_genai//:genai",
+    ],
+)

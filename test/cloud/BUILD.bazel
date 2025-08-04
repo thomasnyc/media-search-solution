@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+
+go_test(
+    name = "cloud_test",
+    srcs = [
+        "config_test.go",
+        "pubsub_listener_test.go",
+    ],
+    data = [
+        "//configs:.env.local.toml",
+        "//configs:.env.test.toml",
+        "//configs:.env.toml",
+    ],
+    rundir = ".",
+    deps = [
+        "//pkg/cloud",
+        "//pkg/cor",
+        "//test",
+        "@com_github_stretchr_testify//assert",
+    ],
+)

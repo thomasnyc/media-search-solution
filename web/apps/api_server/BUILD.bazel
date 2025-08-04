@@ -1,0 +1,55 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+# Copyright 2024 Google, LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+go_library(
+    name = "api_server_lib",
+    srcs = [
+        "api_server.go",
+        "dashboard.go",
+        "file_upload.go",
+        "listeners.go",
+        "media.go",
+        "setup.go",
+    ],
+    importpath = "github.com/GoogleCloudPlatform/solutions/media/web/apps/api_server",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//pkg/cloud",
+        "//pkg/model",
+        "//pkg/services",
+        "//pkg/telemetry",
+        "//pkg/workflow",
+        "@com_github_gin_contrib_cors//:cors",
+        "@com_github_gin_gonic_gin//:gin",
+        "@io_opentelemetry_go_contrib_instrumentation_github_com_gin_gonic_gin_otelgin//:otelgin",
+    ],
+)
+
+go_binary(
+    name = "api_server",
+    data = [
+        "//:copy_ffmpeg",
+        "//configs:.env.local.toml",
+        "//configs:.env.toml",
+        "//web/apps/media-search:build",
+    ],
+    embed = [":api_server_lib"],
+    env = {
+        "GCP_CONFIG_PREFIX": "configs",
+        "GCP_RUNTIME": "local",
+    },
+    visibility = ["//visibility:public"],
+)

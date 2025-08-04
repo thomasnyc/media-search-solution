@@ -1,0 +1,108 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library", "js_run_binary")
+load("@aspect_rules_swc//swc:defs.bzl", "swc")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//web/apps/media-search:vite/package_json.bzl", vite_bin = "bin")
+
+npm_link_all_packages()
+
+ts_config(
+    name = "tsconfig",
+    src = "tsconfig.json",
+    visibility = ["//visibility:public"],
+    deps = [
+        "tsconfig.app.json",
+        "tsconfig.node.json",
+    ],
+)
+
+js_library(
+    name = "package_json",
+    srcs = ["package.json"],
+)
+
+#js_library(
+#    name = "assets",
+#    srcs = glob([
+#        "src/assets/*.webp",
+#        "src/assets/*.svg",
+#    ]),
+#)
+
+RUNTIME_DEPS = [
+    "//web/apps/media-search/public",
+    "//web/apps/media-search/src",
+    "index.html",
+    ":package_json",
+    ":node_modules/@emotion/react",
+    ":node_modules/@emotion/styled",
+    ":node_modules/@mui/icons-material",
+    ":node_modules/@mui/material",
+    ":node_modules/@vitejs/plugin-react",
+    ":node_modules/@vitejs/plugin-react-swc",
+    ":node_modules/axios",
+    ":node_modules/react",
+    ":node_modules/react-dom",
+    ":node_modules/react-drag-drop-files",
+    ":node_modules/react-router-dom",
+]
+
+ts_project(
+    name = "media-search",
+    srcs = [
+        "index.html",
+        ":package_json",
+        "//web/apps/media-search/public",
+        "//web/apps/media-search/src",
+    ],
+    transpiler = swc,
+    tsconfig = ":tsconfig",
+)
+
+js_library(
+    name = "vite.config",
+    srcs = ["vite.config.mts"],
+    data = [
+        ":node_modules/@vitejs/plugin-react-swc",
+    ],
+)
+
+vite_bin.vite_binary(
+    name = "vite",
+    chdir = package_name(),
+    data = [
+        ":vite.config",
+    ],
+)
+
+js_run_binary(
+    name = "build",
+    srcs = RUNTIME_DEPS + [":node_modules/vite"],
+    args = ["build"],
+    mnemonic = "ViteBuild",
+    out_dirs = ["dist"],
+    tool = ":vite",
+    visibility = ["//web/apps/api_server:__pkg__"],
+)
+
+vite_bin.vite_binary(
+    name = "start",
+    args = [
+        "preview",
+        "--port",
+        "4000",
+        "--mode",
+        "dev",
+    ],
+    chdir = package_name(),
+    data = [":build"],
+    visibility = ["//visibility:public"],
+)
+
+# Hosts the production-bundled application in a web server
+vite_bin.vite_binary(
+    name = "preview",
+    args = ["preview"],
+    chdir = package_name(),
+    data = [":build"],
+)

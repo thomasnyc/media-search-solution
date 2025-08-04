@@ -1,0 +1,5 @@
+# Common build flags
+build --color=yes
+
+# Configuration for building a static Go binary for Linux containers
+build:linux --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64

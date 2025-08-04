@@ -1,0 +1,10 @@
+app.log
+# Terraform
+**/terraform.tfstate*
+**/terraform.tfvars
+**/.terraform.tfstate*
+**/.terraform/**
+
+.aspect/**
+configs/.env.local.toml
+web/apps/media-search/package-lock.json

@@ -1,0 +1,54 @@
+{
+    "folders": [
+        {
+            "name": "Configuration",
+            "path": "configs"
+        },
+        {
+            "name": "Documents",
+            "path": "docs"
+        },
+        {
+            "name": "Packages",
+            "path": "pkg"
+        },
+        {
+            "name": "Web",
+            "path": "web"
+        },
+        {
+            "name": "Testing",
+            "path": "test"
+        },
+        {
+            "name": "Third Party Assets",
+            "path": "third_party"
+        },
+        {
+            "name": "Project Root",
+            "path": "."
+        }
+    ],
+    "extensions": {
+        "recommendations": [
+            "BazelBuild.vscode-bazel", "golang.go", "googlecloudtools.cloudcode", "trunk.io"
+        ]
+    },
+    "settings": {
+        "editor.tabSize": 2,
+        "cSpell.words": [
+            "autoexport",
+            "autoprop",
+            "bazel",
+            "genai",
+            "metageneration",
+            "opentelemetry",
+            "otel",
+            "otelgin",
+            "otelslog",
+            "rmcguinness",
+            "semconv",
+            "UNNEST"
+        ],
+    }
+}
