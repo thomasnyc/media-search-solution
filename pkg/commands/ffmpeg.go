@@ -17,6 +17,8 @@ package commands
 import (
 	"fmt"
 	"io"
+	"log"
+	"time"
 
 	"os"
 	"os/exec"
@@ -55,6 +57,21 @@ func NewFFMpegCommand(name string, commandPath string, targetWidth string, confi
 func (c *FFMpegCommand) Execute(context cor.Context) {
 	msg := context.Get(c.GetInputParam()).(*cloud.GCSObject)
 	inputFileName := fmt.Sprintf("%s/%s/%s", c.config.Storage.GCSFuseMountPoint, msg.Bucket, msg.Name)
+
+	var err error
+	for i := range FileCheckRetries {
+		if _, err = os.Stat(inputFileName); err == nil {
+			break
+		}
+		log.Printf("waiting for file to appear: %s, attempt %d/%d", inputFileName, i+1, FileCheckRetries)
+		time.Sleep(FileCheckDelay)
+	}
+
+	if err != nil {
+		c.GetErrorCounter().Add(context.GetContext(), 1)
+		context.AddError(c.GetName(), fmt.Errorf("file: %s not found after several retries. Error: %w", inputFileName, err))
+		return
+	}
 
 	file, err := os.Open(inputFileName)
 	if err != nil {

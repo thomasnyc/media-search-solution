@@ -16,10 +16,12 @@ package commands
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
@@ -27,6 +29,10 @@ import (
 
 const (
 	DefaultVideoDurationCmdArgs = "-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 %s"
+	// FileCheckRetries is the number of times to check for a file's existence.
+	FileCheckRetries = 5
+	// FileCheckDelay is the time to wait between file existence checks.
+	FileCheckDelay = 10 * time.Second
 )
 
 type MediaLengthCommand struct {
@@ -48,6 +54,21 @@ func NewMediaLengthCommand(name string, commandPath string, outputParamName stri
 func (c *MediaLengthCommand) Execute(context cor.Context) {
 	gcsFile := context.Get(cloud.GetGCSObjectName()).(*cloud.GCSObject)
 	inputFileName := fmt.Sprintf("%s/%s/%s", c.config.Storage.GCSFuseMountPoint, gcsFile.Bucket, gcsFile.Name)
+
+	var err error
+	for i := range FileCheckRetries {
+		if _, err = os.Stat(inputFileName); err == nil {
+			break
+		}
+		log.Printf("waiting for file to appear: %s, attempt %d/%d", inputFileName, i+1, FileCheckRetries)
+		time.Sleep(FileCheckDelay)
+	}
+
+	if err != nil {
+		c.GetErrorCounter().Add(context.GetContext(), 1)
+		context.AddError(c.GetName(), fmt.Errorf("file: %s not found after several retries. Error: %w", inputFileName, err))
+		return
+	}
 
 	args := fmt.Sprintf(DefaultVideoDurationCmdArgs, inputFileName)
 	cmd := exec.Command(c.commandPath, strings.Split(args, CommandSeparator)...)
