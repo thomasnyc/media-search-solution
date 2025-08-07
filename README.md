@@ -166,3 +166,18 @@ Once the processing is finished, you can use the web application to search for c
 1.  Navigate back to the Media Search application URL in your browser.
 2.  In the search bar, enter a free-text query related to the content of the video you uploaded. For example, if your video contains a scene with a car, you could search for "car".
 3.  The application will display a list of video scenes that have a high correlation with your search term. You can play the specific scenes and view scene descriptions directly in the browser.
+
+### 4. Cleaning Up a Media File
+
+If you need to remove a specific video and all its associated data (including proxy files and metadata), you can use the `cleanup_media_file.sh` script. This is useful for testing or for removing content that is no longer needed.
+
+The script performs the following actions:
+*   Deletes the original video from the high-resolution Cloud Storage bucket.
+*   Deletes the generated proxy video from the low-resolution Cloud Storage bucket.
+*   Deletes all associated metadata records from the BigQuery tables.
+
+To run the cleanup script, execute the following command from the root of the repository, replacing `<VIDEO_FILE_NAME>` with the name of the file you want to delete (e.g., `my-test-video.mp4`):
+
+```sh
+scripts/cleanup_media_file.sh <VIDEO_FILE_NAME>
+```
