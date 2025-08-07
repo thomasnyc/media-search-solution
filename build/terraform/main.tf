@@ -19,6 +19,11 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 6.5.0"
     }
+
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "~> 6.5.0"
+    }
   }
 
   provider_meta "google" {
@@ -29,6 +34,9 @@ terraform {
 provider "google" {
   project = var.project_id
   region  = var.region
+}
+
+data "google_project" "default" {
 }
 
 locals {
@@ -49,6 +57,7 @@ module "project_services" {
     "cloudresourcemanager.googleapis.com",
     "iap.googleapis.com",
     "aiplatform.googleapis.com",
+    "storage.googleapis.com",
   ]
 }
 
@@ -133,4 +142,26 @@ module "media_search_service_account" {
   ]
   display_name = "Media Search Web Service Account"
   description  = "specific custom service account for Web APP"
+}
+
+resource "google_project_service_identity" "vertex_ai_service_agent" {
+  provider = google-beta
+  project  = var.project_id
+  service  = "aiplatform.googleapis.com"
+}
+
+resource "google_project_iam_member" "vertex_ai_service_agent_roles" {
+  project = var.project_id
+  member  = "serviceAccount:service-${data.google_project.default.number}@gcp-sa-aiplatform.iam.gserviceaccount.com"
+  depends_on = [
+    google_project_service_identity.vertex_ai_service_agent
+  ]
+  for_each = toset([
+    "roles/aiplatform.serviceAgent",
+    "roles/storage.objectAdmin",
+    "roles/bigquery.dataViewer",
+    "roles/bigquery.jobUser",
+    "roles/pubsub.admin",
+  ])
+  role = each.key
 }
