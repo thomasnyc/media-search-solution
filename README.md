@@ -69,30 +69,31 @@ Once the project is set up, the identity deploying the Infrastructure-as-Code (I
 ### Create infrastructure resources on Google Cloud
 1. **Set up your environment.** To deploy the solution, you can use [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal), which comes pre-installed with the necessary tools. Alternatively, if you prefer a local terminal, ensure you have installed and configured the following:
     * [Git CLI](https://github.com/git-guides/install-git)
-    * [install](https://cloud.google.com/sdk/docs/install) and [initialize](https://cloud.google.com/sdk/docs/initializing) the gcloud CLI
+    * [Install](https://cloud.google.com/sdk/docs/install) and [initialize](https://cloud.google.com/sdk/docs/initializing) the gcloud CLI
     * [Terraform](https://developer.hashicorp.com/terraform/tutorials/gcp-get-started/install-cli)
 
-1. **Clone the repository.** In your terminal, clone the solution's source code:
+1. **Clone the repository.** In your terminal, clone the solution's source code and change into the new directory:
     ```sh
     git clone https://github.com/GoogleCloudPlatform/media-search-solution.git
+    cd media-search-solution
     ```
-1. **Navigate to the terraform directory**:
+1. **Run the setup script.** This script automates the initial setup by checking for required tools, logging you into Google Cloud, enabling necessary APIs, and creating a `terraform.tfvars` file from the example.
     ```sh
-    cd media-search-solution/build/terraform
+    scripts/setup_terraform.sh
     ```
-1. **Configure your deployment variables.** Create a `terraform.tfvars` file by copying the provided example::
+1. **Configure your deployment variables.** The setup script created the `build/terraform/terraform.tfvars` file. Open this file and set the values for the following variables:
+
+    |Terraform variable|Description|
+    |---|---|
+    |project_id|Your Google Cloud project ID.|
+    |high_res_bucket|A unique name for the Cloud Storage bucket that will store high-resolution media (e.g., "media-high-res-your-project-id").|
+    |low_res_bucket|A unique name for the Cloud Storage bucket that will store low-resolution media (e.g., "media-low-res-your-project-id").|
+    |region|(Optional) The Google Cloud region for deployment. Defaults to `us-central1`.|
+
+1. **Navigate to the Terraform directory**:
     ```sh
-    cp terraform.tfvars.example terraform.tfvars
+    cd build/terraform
     ```
-    Now, open `terraform.tfvars` and set the values for the following variables:
-
-|Terraform variable|Description|
-|---|---|
-|project_id|Your Google Cloud project ID.|
-|high_res_bucket|A unique name for the Cloud Storage bucket that will store high-resolution media (e.g., "media-high-res-your-project-id").|
-|low_res_bucket|A unique name for the Cloud Storage bucket that will store low-resolution media (e.g., "media-low-res-your-project-id").|
-|region|(Optional) The Google Cloud region for deployment. Defaults to `us-central1`.|
-
 1. **Initialize Terraform**:
     ```sh
     terraform init

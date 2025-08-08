@@ -44,5 +44,5 @@ output "service_account_email" {
 
 output "container_image_uri" {
   description = "The URI of the container image to deploy."
-  value       = "${var.region}-docker.pkg.dev/${module.project_services.project_id}/${google_artifact_registry_repository.docker-repo.name}/${local.solution_prefix}"
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker-repo.name}/${local.solution_prefix}"
 }

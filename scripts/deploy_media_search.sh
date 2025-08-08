@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script automates the deployment of the Media Search service to Cloud Run.
 # It assumes that you have already run `terraform apply` and have the necessary
