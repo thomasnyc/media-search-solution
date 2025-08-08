@@ -77,6 +77,11 @@ Once the project is set up, the identity deploying the Infrastructure-as-Code (I
     git clone https://github.com/GoogleCloudPlatform/media-search-solution.git
     cd media-search-solution
     ```
+1. **Set script permissions.** Grant execute permission to all the script files in the `scripts` directory:
+    ```sh
+    chmod +x scripts/*.sh
+    ```
+
 1. **Run the setup script.** This script automates the initial setup by checking for required tools, logging you into Google Cloud, enabling necessary APIs, and creating a `terraform.tfvars` file from the example.
     ```sh
     scripts/setup_terraform.sh
@@ -168,6 +173,11 @@ Once the processing is finished, you can use the web application to search for c
 2.  In the search bar, enter a free-text query related to the content of the video you uploaded. For example, if your video contains a scene with a car, you could search for "car".
 3.  The application will display a list of video scenes that have a high correlation with your search term. You can play the specific scenes and view scene descriptions directly in the browser.
 
+**Note:** IAP permission changes can take up to 7 minutes to propagate. If you encounter a `You don't have access` page, please wait a few minutes and then refresh your browser.
+
+**Note:** The first time the application loads content from Google Cloud Storage, Google's [Endpoint Verification](https://cloud.google.com/endpoint-verification/docs/overview) may prompt you to select a client certificate.
+If this occurs, choose the certificate issued by `Google Endpoint Verification` from the list.
+
 ### 4. Cleaning Up a Media File
 
 If you need to remove a specific video and all its associated data (including proxy files and metadata), you can use the `cleanup_media_file.sh` script. This is useful for testing or for removing content that is no longer needed.
@@ -182,3 +192,11 @@ To run the cleanup script, execute the following command from the root of the re
 ```sh
 scripts/cleanup_media_file.sh <VIDEO_FILE_NAME>
 ```
+**Note:** BigQuery does not support DML operations (`UPDATE`, `DELETE`) on data recently streamed into a table.
+Attempt to modify recently written rows will trigger the following error:
+
+```
+UPDATE or DELETE statement over table ... would affect rows in the streaming buffer, which is not supported
+```
+
+To resolve this, wait for the buffer to clear (this can take up to 90 minutes) before re-running the script. For more details, see [BigQuery DML Limitations](https://cloud.google.com/bigquery/docs/data-manipulation-language#limitations).
