@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"path/filepath"
 	"time"
 
 	"os"
@@ -90,7 +91,13 @@ func (c *FFMpegCommand) Execute(context cor.Context) {
 		context.AddError(c.GetName(), fmt.Errorf("error running ffmpeg: %w", err))
 		return
 	}
-	outputFile := fmt.Sprintf("%s/%s/%s", c.config.Storage.GCSFuseMountPoint, c.config.Storage.LowResOutputBucket, msg.Name)
+
+	outputName := msg.Name
+	if ext := filepath.Ext(outputName); ext != ".mp4" {
+		outputName = strings.TrimSuffix(outputName, ext) + ".mp4"
+	}
+
+	outputFile := fmt.Sprintf("%s/%s/%s", c.config.Storage.GCSFuseMountPoint, c.config.Storage.LowResOutputBucket, outputName)
 
 	MoveFile(tempFile.Name(), outputFile)
 	c.GetSuccessCounter().Add(context.GetContext(), 1)

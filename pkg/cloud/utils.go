@@ -107,6 +107,15 @@ func GenerateMultiModalResponse(
 			}
 		}
 	}
+	if len(value) == 0 {
+		log.Println("Empty response from model, retrying...")
+		if tryCount < MaxRetries {
+			retryCounter.Add(ctx, 1)
+			return GenerateMultiModalResponse(ctx, inputTokenCounter, outputTokenCounter, retryCounter, tryCount+1, model, contents, outputSchema)
+		} else {
+			return "", errors.New("no candidates returned from model after retries")
+		}
+	}
 	return value, nil
 }
 
