@@ -18,37 +18,43 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"text/template"
 
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/model"
 	"go.opentelemetry.io/otel/metric"
+	"google.golang.org/genai"
 
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
-	"google.golang.org/genai"
 )
 
 type MediaSummaryCreator struct {
 	cor.BaseCommand
-	config                   *cloud.Config
-	generativeAIModel        *cloud.QuotaAwareGenerativeAIModel
-	template                 *template.Template
-	geminiInputTokenCounter  metric.Int64Counter
-	geminiOutputTokenCounter metric.Int64Counter
-	geminiRetryCounter       metric.Int64Counter
+	config                     *cloud.Config
+	generativeAIModel          *cloud.QuotaAwareGenerativeAIModel
+	templateByMediaType        map[string]*cloud.PromptTemplate
+	contentTypeParamName       string
+	mediaLengthOutputParamName string
+	geminiInputTokenCounter    metric.Int64Counter
+	geminiOutputTokenCounter   metric.Int64Counter
+	geminiRetryCounter         metric.Int64Counter
 }
 
 func NewMediaSummaryCreator(
 	name string,
 	config *cloud.Config,
 	generativeAIModel *cloud.QuotaAwareGenerativeAIModel,
-	template *template.Template) *MediaSummaryCreator {
+	templateByMediaType map[string]*cloud.PromptTemplate,
+	mediaLengthOutputParamName string,
+	contentTypeParamName string) *MediaSummaryCreator {
 
 	out := &MediaSummaryCreator{
-		BaseCommand:       *cor.NewBaseCommand(name),
-		config:            config,
-		generativeAIModel: generativeAIModel,
-		template:          template}
+		BaseCommand:                *cor.NewBaseCommand(name),
+		config:                     config,
+		generativeAIModel:          generativeAIModel,
+		templateByMediaType:        templateByMediaType,
+		mediaLengthOutputParamName: mediaLengthOutputParamName,
+		contentTypeParamName:       contentTypeParamName,
+	}
 
 	out.geminiInputTokenCounter, _ = out.GetMeter().Int64Counter(fmt.Sprintf("%s.gemini.token.input", out.GetName()))
 	out.geminiOutputTokenCounter, _ = out.GetMeter().Int64Counter(fmt.Sprintf("%s.gemini.token.ouput", out.GetName()))
@@ -57,7 +63,8 @@ func NewMediaSummaryCreator(
 	return out
 }
 
-func (t *MediaSummaryCreator) GenerateParams(_ cor.Context) map[string]interface{} {
+func (t *MediaSummaryCreator) GenerateParams(context cor.Context) map[string]interface{} {
+	mediaLengthInSeconds := context.Get(t.mediaLengthOutputParamName).(int)
 	params := make(map[string]interface{})
 
 	// Create a string representation of the categories
@@ -69,15 +76,17 @@ func (t *MediaSummaryCreator) GenerateParams(_ cor.Context) map[string]interface
 
 	exampleSummary, _ := json.Marshal(model.GetExampleSummary())
 	params["EXAMPLE_JSON"] = string(exampleSummary)
+	params["VIDEO_LENGTH"] = fmt.Sprintf("%d", mediaLengthInSeconds)
 	return params
 }
 
 func (t *MediaSummaryCreator) Execute(context cor.Context) {
 	gcsFile := context.Get(cloud.GetGCSObjectName()).(*cloud.GCSObject)
 	gcsFileLink := fmt.Sprintf("gs://%s/%s", gcsFile.Bucket, gcsFile.Name)
+	mediaType := context.Get(t.contentTypeParamName).(string)
 
 	var buffer bytes.Buffer
-	err := t.template.Execute(&buffer, t.GenerateParams(context))
+	err := t.templateByMediaType[mediaType].SummaryPrompt.Execute(&buffer, t.GenerateParams(context))
 	if err != nil {
 		t.GetErrorCounter().Add(context.GetContext(), 1)
 		context.AddError(t.GetName(), err)
@@ -93,7 +102,7 @@ func (t *MediaSummaryCreator) Execute(context cor.Context) {
 	}
 
 	// Get the response
-	out, err := cloud.GenerateMultiModalResponse(context.GetContext(), t.geminiInputTokenCounter, t.geminiOutputTokenCounter, t.geminiRetryCounter, 0, t.generativeAIModel, contents, model.NewMediaSummarySchema())
+	out, err := cloud.GenerateMultiModalResponse(context.GetContext(), t.geminiInputTokenCounter, t.geminiOutputTokenCounter, t.geminiRetryCounter, 0, t.generativeAIModel, t.templateByMediaType[mediaType].SystemInstructions, contents, model.NewMediaSummarySchema())
 	if err != nil {
 		t.GetErrorCounter().Add(context.GetContext(), 1)
 		context.AddError(t.GetName(), err)

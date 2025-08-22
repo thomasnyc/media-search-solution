@@ -178,7 +178,20 @@ Once the processing is finished, you can use the web application to search for c
 **Note:** The first time the application loads content from Google Cloud Storage, Google's [Endpoint Verification](https://cloud.google.com/endpoint-verification/docs/overview) may prompt you to select a client certificate.
 If this occurs, choose the certificate issued by `Google Endpoint Verification` from the list.
 
-### 4. Cleaning Up a Media File
+### 4. Customizing Media Analysis
+
+The Media Search Solution is configured with general-purpose prompts for analyzing video content. However, to achieve the best results for your specific use case, it is highly recommended that you customize the AI prompts to align with the nature of your media library.
+
+For example:
+*   If you are analyzing **sports footage**, you might want to extract key plays, player names, and game statistics.
+*   For **news reports**, you might focus on identifying speakers, locations, and key events.
+*   For **product reviews**, extracting product names, features mentioned, and sentiment would be crucial.
+
+By tailoring the prompts, you guide the AI to extract the most relevant and valuable metadata for your needs, which significantly enhances the accuracy and usefulness of the search results.
+
+For detailed instructions on how to modify the content type, summary, and scene analysis prompts, please refer to the [Prompt Configuration Guide](docs/PromptConfiguration.md).
+
+### 5. Cleaning Up a Media File
 
 If you need to remove a specific video and all its associated data (including proxy files and metadata), you can use the `cleanup_media_file.sh` script. This is useful for testing or for removing content that is no longer needed.
 

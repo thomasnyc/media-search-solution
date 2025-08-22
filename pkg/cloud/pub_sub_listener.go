@@ -77,13 +77,13 @@ func (m *PubSubListener) Listen(ctx context.Context) {
 			// Start a new span.
 			spanCtx, span := tracer.Start(ctx, "receive-message")
 			span.SetName("receive-message")
-			span.SetAttributes(attribute.String("msg", string(msg.Data)))
-			log.Println("received message")
+			msgDataStr := string(msg.Data)
+			span.SetAttributes(attribute.String("msg", msgDataStr))
 
 			// Create a new chain context.
 			chainCtx := cor.NewBaseContext()
 			chainCtx.SetContext(spanCtx)
-			chainCtx.Add(cor.CtxIn, string(msg.Data))
+			chainCtx.Add(cor.CtxIn, msgDataStr)
 
 			// Moving message acknowledgement to here tempurarily as the processing takes more than 600 seconds. which is the maximum time for a message to be acknowledged.
 			// If this times out, the resize pipeline don't gets to run to completion, and messages are redelivered so we end up in an infinite loop.

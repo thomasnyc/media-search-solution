@@ -54,6 +54,7 @@ func NewMediaLengthCommand(name string, commandPath string, outputParamName stri
 func (c *MediaLengthCommand) Execute(context cor.Context) {
 	gcsFile := context.Get(cloud.GetGCSObjectName()).(*cloud.GCSObject)
 	inputFileName := fmt.Sprintf("%s/%s/%s", c.config.Storage.GCSFuseMountPoint, gcsFile.Bucket, gcsFile.Name)
+	log.Printf("Received message for media file: %s/%s", gcsFile.Bucket, gcsFile.Name)
 
 	var err error
 	for i := range FileCheckRetries {

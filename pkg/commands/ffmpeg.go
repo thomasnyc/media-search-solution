@@ -58,6 +58,7 @@ func NewFFMpegCommand(name string, commandPath string, targetWidth string, confi
 func (c *FFMpegCommand) Execute(context cor.Context) {
 	msg := context.Get(c.GetInputParam()).(*cloud.GCSObject)
 	inputFileName := fmt.Sprintf("%s/%s/%s", c.config.Storage.GCSFuseMountPoint, msg.Bucket, msg.Name)
+	log.Printf("Received message for media file: %s/%s", msg.Bucket, msg.Name)
 
 	var err error
 	for i := range FileCheckRetries {
