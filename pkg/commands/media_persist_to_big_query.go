@@ -18,6 +18,7 @@ import (
 	"log"
 
 	"cloud.google.com/go/bigquery"
+	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/model"
 )
@@ -39,7 +40,8 @@ func (s *MediaPersistToBigQuery) IsExecutable(context cor.Context) bool {
 }
 
 func (s *MediaPersistToBigQuery) Execute(context cor.Context) {
-	log.Println("Persisting data")
+	gcsFile := context.Get(cloud.GetGCSObjectName()).(*cloud.GCSObject)
+	log.Printf("Persisting data for: %s/%s", gcsFile.Bucket, gcsFile.Name)
 	media := context.Get(s.mediaParam).(*model.Media)
 	i := s.client.Dataset(s.dataset).Table(s.table).Inserter()
 	if err := i.Put(context.GetContext(), media); err != nil {

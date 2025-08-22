@@ -87,15 +87,16 @@ func GenerateMultiModalResponse(
 	retryCounter metric.Int64Counter,
 	tryCount int,
 	model *QuotaAwareGenerativeAIModel,
+	systemInstruction string,
 	contents []*genai.Content,
 	outputSchema *genai.Schema) (value string, err error) {
-	resp, err := model.GenerateContent(ctx, contents, outputSchema)
+	resp, err := model.GenerateContent(ctx, systemInstruction, contents, outputSchema)
 	inputTokenCounter.Add(ctx, int64(resp.UsageMetadata.PromptTokenCount))
 	outputTokenCounter.Add(ctx, int64(resp.UsageMetadata.CandidatesTokenCount))
 	if err != nil {
 		if tryCount < MaxRetries {
 			retryCounter.Add(ctx, 1)
-			return GenerateMultiModalResponse(ctx, inputTokenCounter, outputTokenCounter, retryCounter, tryCount+1, model, contents, outputSchema)
+			return GenerateMultiModalResponse(ctx, inputTokenCounter, outputTokenCounter, retryCounter, tryCount+1, model, systemInstruction, contents, outputSchema)
 		} else {
 			return "", err
 		}
@@ -111,7 +112,7 @@ func GenerateMultiModalResponse(
 		log.Println("Empty response from model, retrying...")
 		if tryCount < MaxRetries {
 			retryCounter.Add(ctx, 1)
-			return GenerateMultiModalResponse(ctx, inputTokenCounter, outputTokenCounter, retryCounter, tryCount+1, model, contents, outputSchema)
+			return GenerateMultiModalResponse(ctx, inputTokenCounter, outputTokenCounter, retryCounter, tryCount+1, model, systemInstruction, contents, outputSchema)
 		} else {
 			return "", errors.New("no candidates returned from model after retries")
 		}

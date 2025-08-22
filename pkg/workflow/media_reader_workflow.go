@@ -27,16 +27,16 @@ import (
 
 type MediaReaderWorkflow struct {
 	cor.BaseCommand
-	config          *cloud.Config
-	bigqueryClient  *bigquery.Client
-	genaiClient     *genai.Client
-	genaiModel      *cloud.QuotaAwareGenerativeAIModel
-	storageClient   *storage.Client
-	numberOfWorkers int
-	summaryTemplate *template.Template
-	sceneTemplate   *template.Template
-	chain           cor.Chain
-	ffprobeCommand  string
+	config              *cloud.Config
+	bigqueryClient      *bigquery.Client
+	genaiClient         *genai.Client
+	genaiModel          *cloud.QuotaAwareGenerativeAIModel
+	storageClient       *storage.Client
+	numberOfWorkers     int
+	contentTypeTemplate *template.Template
+	templateByMediaType map[string]*cloud.PromptTemplate
+	chain               cor.Chain
+	ffprobeCommand      string
 }
 
 func (m *MediaReaderWorkflow) Execute(context cor.Context) {
@@ -48,6 +48,7 @@ func (m *MediaReaderWorkflow) initializeChain() {
 	const SceneOutputParamName = "__scene_output__"
 	const MediaOutputParamName = "__media_output__"
 	const MediaLengthOutputParamName = "__media_length_output__"
+	const ContentTypeOutputParamName = "__content_type_output__"
 
 	out := cor.NewBaseChain(m.GetName())
 
@@ -57,14 +58,17 @@ func (m *MediaReaderWorkflow) initializeChain() {
 	// Get media length
 	out.AddCommand(commands.NewMediaLengthCommand("get-media-length", m.ffprobeCommand, MediaLengthOutputParamName, m.config))
 
+	// Determine the media content type
+	out.AddCommand(commands.NewMediaContentTypeCommand("get-media-content-type", m.config, m.genaiModel, m.contentTypeTemplate, ContentTypeOutputParamName))
+
 	// Generate Summary
-	out.AddCommand(commands.NewMediaSummaryCreator("generate-media-summary", m.config, m.genaiModel, m.summaryTemplate))
+	out.AddCommand(commands.NewMediaSummaryCreator("generate-media-summary", m.config, m.genaiModel, m.templateByMediaType, MediaLengthOutputParamName, ContentTypeOutputParamName))
 
 	// Convert the JSON to a struct and save to the summaryOutputParam
 	out.AddCommand(commands.NewMediaSummaryJsonToStruct("convert-media-summary", SummaryOutputParamName))
 
 	// Create the scene extraction command
-	sceneExtractor := commands.NewSceneExtractor("extract-media-scenes", m.genaiModel, m.sceneTemplate, m.numberOfWorkers, MediaLengthOutputParamName)
+	sceneExtractor := commands.NewSceneExtractor("extract-media-scenes", m.genaiModel, m.templateByMediaType, m.numberOfWorkers, ContentTypeOutputParamName)
 	sceneExtractor.BaseCommand.OutputParamName = SceneOutputParamName
 	out.AddCommand(sceneExtractor)
 
@@ -87,26 +91,40 @@ func NewMediaReaderPipeline(
 	agentModelName string,
 	ffprobeCommand string) *MediaReaderWorkflow {
 
-	summaryTemplate, err := template.New("summary-template").Parse(config.PromptTemplates.SummaryPrompt)
-	if err != nil {
-		panic(err)
+	templateByMediaType := make(map[string]*cloud.PromptTemplate)
+	for mediaType := range config.PromptTemplates {
+		systemInstruction := config.PromptTemplates[mediaType].SystemInstructions
+		summaryTemplate, err := template.New("summary-template").Parse(config.PromptTemplates[mediaType].SummaryPrompt)
+		if err != nil {
+			panic(err)
+		}
+		sceneTemplate, err := template.New("scene-template").Parse(config.PromptTemplates[mediaType].ScenePrompt)
+		if err != nil {
+			panic(err)
+		}
+		templateByMediaType[mediaType] = &cloud.PromptTemplate{
+			SystemInstructions: systemInstruction,
+			SummaryPrompt:      summaryTemplate,
+			ScenePrompt:        sceneTemplate,
+		}
 	}
-	sceneTemplate, err := template.New("scene-template").Parse(config.PromptTemplates.ScenePrompt)
+
+	contenTypeTemplate, err := template.New("content-type-template").Parse(config.ContentType.PromptTemplate)
 	if err != nil {
 		panic(err)
 	}
 
 	pipeline := &MediaReaderWorkflow{
-		BaseCommand:     *cor.NewBaseCommand("media-reader-pipeline"),
-		config:          config,
-		bigqueryClient:  serviceClients.BiqQueryClient,
-		genaiClient:     serviceClients.GenAIClient,
-		genaiModel:      serviceClients.AgentModels[agentModelName],
-		storageClient:   serviceClients.StorageClient,
-		numberOfWorkers: config.Application.ThreadPoolSize,
-		summaryTemplate: summaryTemplate,
-		sceneTemplate:   sceneTemplate,
-		ffprobeCommand:  ffprobeCommand,
+		BaseCommand:         *cor.NewBaseCommand("media-reader-pipeline"),
+		config:              config,
+		bigqueryClient:      serviceClients.BiqQueryClient,
+		genaiClient:         serviceClients.GenAIClient,
+		genaiModel:          serviceClients.AgentModels[agentModelName],
+		storageClient:       serviceClients.StorageClient,
+		numberOfWorkers:     config.Application.ThreadPoolSize,
+		contentTypeTemplate: contenTypeTemplate,
+		templateByMediaType: templateByMediaType,
+		ffprobeCommand:      ffprobeCommand,
 	}
 	pipeline.initializeChain()
 	return pipeline

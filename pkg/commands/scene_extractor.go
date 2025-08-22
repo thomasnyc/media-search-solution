@@ -37,30 +37,30 @@ import (
 type SceneExtractor struct {
 	cor.BaseCommand
 	generativeAIModel        *cloud.QuotaAwareGenerativeAIModel
-	promptTemplate           *template.Template
+	templateByMediaType      map[string]*cloud.PromptTemplate
 	numberOfWorkers          int
 	geminiInputTokenCounter  metric.Int64Counter
 	geminiOutputTokenCounter metric.Int64Counter
 	geminiRetryCounter       metric.Int64Counter
-	mediaLengthParam         string
+	contentTypeParamName     string
 }
 
 func NewSceneExtractor(
 	name string,
 	model *cloud.QuotaAwareGenerativeAIModel,
-	prompt *template.Template,
+	templateByMediaType map[string]*cloud.PromptTemplate,
 	numberOfWorkers int,
-	mediaLengthParam string) *SceneExtractor {
+	contentTypeParamName string) *SceneExtractor {
 	out := &SceneExtractor{
-		BaseCommand:       *cor.NewBaseCommand(name),
-		generativeAIModel: model,
-		promptTemplate:    prompt,
-		numberOfWorkers:   numberOfWorkers}
+		BaseCommand:          *cor.NewBaseCommand(name),
+		generativeAIModel:    model,
+		templateByMediaType:  templateByMediaType,
+		numberOfWorkers:      numberOfWorkers,
+		contentTypeParamName: contentTypeParamName}
 
 	out.geminiInputTokenCounter, _ = out.GetMeter().Int64Counter(fmt.Sprintf("%s.gemini.token.input", out.GetName()))
 	out.geminiOutputTokenCounter, _ = out.GetMeter().Int64Counter(fmt.Sprintf("%s.gemini.token.ouput", out.GetName()))
 	out.geminiRetryCounter, _ = out.GetMeter().Int64Counter(fmt.Sprintf("%s.gemini.token.retry", out.GetName()))
-	out.mediaLengthParam = mediaLengthParam
 
 	return out
 }
@@ -74,8 +74,8 @@ func (s *SceneExtractor) IsExecutable(context cor.Context) bool {
 func (s *SceneExtractor) Execute(context cor.Context) {
 	summary := context.Get(s.GetInputParam()).(*model.MediaSummary)
 	gcsFile := context.Get(cloud.GetGCSObjectName()).(*cloud.GCSObject)
-	mediaLengthInSeconds := context.Get(s.mediaLengthParam).(int)
 	gcsFileLink := fmt.Sprintf("gs://%s/%s", gcsFile.Bucket, gcsFile.Name)
+	mediaType := context.Get(s.contentTypeParamName).(string)
 	videoFile := &genai.FileData{
 		FileURI:  gcsFileLink,
 		MIMEType: gcsFile.MIMEType,
@@ -104,7 +104,7 @@ func (s *SceneExtractor) Execute(context cor.Context) {
 
 	// Execute all scenes against the worker pool
 	for i, ts := range summary.SceneTimeStamps {
-		job := CreateJob(context.GetContext(), s.Tracer, s.geminiInputTokenCounter, s.geminiOutputTokenCounter, s.geminiRetryCounter, i, s.GetName(), summaryText, exampleText, *s.promptTemplate, videoFile, s.generativeAIModel, ts, mediaLengthInSeconds)
+		job := CreateJob(context.GetContext(), s.Tracer, s.geminiInputTokenCounter, s.geminiOutputTokenCounter, s.geminiRetryCounter, i, s.GetName(), summaryText, exampleText, *s.templateByMediaType[mediaType].ScenePrompt, videoFile, s.generativeAIModel, ts)
 		jobs <- job
 	}
 
@@ -169,7 +169,6 @@ func CreateJob(
 	videoFile *genai.FileData,
 	model *cloud.QuotaAwareGenerativeAIModel,
 	timeSpan *model.TimeSpan,
-	videoLength int,
 ) *SceneJob {
 	sceneCtx, sceneSpan := tracer.Start(ctx, fmt.Sprintf("%s_genai", commandName))
 	sceneSpan.SetAttributes(
@@ -183,7 +182,6 @@ func CreateJob(
 	vocabulary["TIME_START"] = timeSpan.Start
 	vocabulary["TIME_END"] = timeSpan.End
 	vocabulary["EXAMPLE_JSON"] = exampleText
-	vocabulary["VIDEO_LENGTH"] = fmt.Sprintf("%d", videoLength)
 
 	var doc bytes.Buffer
 	err := template.Execute(&doc, vocabulary)
@@ -213,7 +211,7 @@ func sceneWorker(jobs <-chan *SceneJob, results chan<- *SceneResponse, wg *sync.
 	defer wg.Done()
 	for j := range jobs {
 		if j.err == nil {
-			out, err := cloud.GenerateMultiModalResponse(j.ctx, j.geminiInputTokenCounter, j.geminiOutputTokenCounter, j.geminiRetryCounter, 0, j.model, j.contents, model.NewSceneExtractorSchema())
+			out, err := cloud.GenerateMultiModalResponse(j.ctx, j.geminiInputTokenCounter, j.geminiOutputTokenCounter, j.geminiRetryCounter, 0, j.model, "", j.contents, model.NewSceneExtractorSchema())
 			if err != nil {
 				j.Close(codes.Error, "scene extract failed")
 				results <- &SceneResponse{err: err}

@@ -14,7 +14,11 @@
 
 package cloud
 
-import "google.golang.org/genai"
+import (
+	"text/template"
+
+	"google.golang.org/genai"
+)
 
 // DefaultSafetySettings Default System Settings for GenAI agents
 var DefaultSafetySettings = []*genai.SafetySetting{
@@ -45,8 +49,16 @@ type BigQueryDataSource struct {
 
 // PromptTemplates holds the templates for different types of prompts.
 type PromptTemplates struct {
-	SummaryPrompt string `toml:"summary"` // The template for generating summaries.
-	ScenePrompt   string `toml:"scene"`   // The template for generating scene descriptions.
+	SystemInstructions string `toml:"system_instructions"` // The system instructions for the LLM.
+	SummaryPrompt      string `toml:"summary"`             // The template for generating summaries.
+	ScenePrompt        string `toml:"scene"`               // The template for generating scene descriptions.
+}
+
+// PromptTemplate holds the templates for generating summaries and scenes.
+type PromptTemplate struct {
+	SystemInstructions string
+	SummaryPrompt      *template.Template
+	ScenePrompt        *template.Template
 }
 
 // VertexAiEmbeddingModel represents the configuration for a Vertex AI embedding model.
@@ -90,6 +102,12 @@ type Category struct {
 	Scene              string `toml:"scene"`
 }
 
+type ContentType struct {
+	Types          []string `toml:"types"`           // A list of content types.
+	PromptTemplate string   `toml:"prompt_template"` // The template for generating content type
+	DefaultType    string   `toml:"default_type"`    // The default content type to use if none is matched.
+}
+
 // Config represents the overall configuration for the application.
 type Config struct {
 	Application struct {
@@ -100,11 +118,12 @@ type Config struct {
 	} `toml:"application"`
 	Storage            Storage                           `toml:"storage"`               // Storage configuration.
 	BigQueryDataSource BigQueryDataSource                `toml:"big_query_data_source"` // BigQuery data source configuration.
-	PromptTemplates    PromptTemplates                   `toml:"prompt_templates"`      // Prompt templates configuration.
+	PromptTemplates    map[string]PromptTemplates        `toml:"prompt_templates"`      // Prompt templates configuration.
 	TopicSubscriptions map[string]TopicSubscription      `toml:"topic_subscriptions"`   // Pub/Sub topic subscriptions configuration.
 	EmbeddingModels    map[string]VertexAiEmbeddingModel `toml:"embedding_models"`      // Vertex AI embedding models configuration.
 	AgentModels        map[string]VertexAiLLMModel       `toml:"agent_models"`          // Vertex AI LLM models configuration.
 	Categories         map[string]Category               `toml:"categories"`            // A list of category definitions and LLM overrides.
+	ContentType        ContentType                       `toml:"content_type"`          // Content type configuration.
 }
 
 // NewConfig creates a new Config instance with initialized maps.
