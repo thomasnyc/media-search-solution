@@ -19,6 +19,7 @@ go_library(
     srcs = [
         "ffmpeg.go",
         "media_assembly.go",
+        "media_config_update.go",
         "media_content_type.go",
         "media_length.go",
         "media_persist_to_big_query.go",

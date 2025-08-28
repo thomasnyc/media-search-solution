@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"text/template"
 
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
@@ -29,7 +28,7 @@ import (
 
 type MediaContentTypeCommand struct {
 	cor.BaseCommand
-	template                 *template.Template
+	templateService          *cloud.TemplateService
 	config                   *cloud.Config
 	generativeAIModel        *cloud.QuotaAwareGenerativeAIModel
 	geminiInputTokenCounter  metric.Int64Counter
@@ -41,14 +40,14 @@ func NewMediaContentTypeCommand(
 	name string,
 	config *cloud.Config,
 	generativeAIModel *cloud.QuotaAwareGenerativeAIModel,
-	template *template.Template,
+	templateService *cloud.TemplateService,
 	outputParamName string) *MediaContentTypeCommand {
 
 	out := MediaContentTypeCommand{
 		BaseCommand:       *cor.NewBaseCommand(name),
 		config:            config,
 		generativeAIModel: generativeAIModel,
-		template:          template,
+		templateService:   templateService,
 	}
 
 	out.geminiInputTokenCounter, _ = out.GetMeter().Int64Counter(fmt.Sprintf("%s.gemini.token.input", out.GetName()))
@@ -68,7 +67,7 @@ func (c *MediaContentTypeCommand) Execute(context cor.Context) {
 	params["CONTENT_TYPES"] = c.config.ContentType.Types
 
 	var buffer bytes.Buffer
-	err := c.template.Execute(&buffer, params)
+	err := c.templateService.GetContentTypeTemplate().Execute(&buffer, params)
 	if err != nil {
 		c.GetErrorCounter().Add(context.GetContext(), 1)
 		context.AddError(c.GetName(), err)

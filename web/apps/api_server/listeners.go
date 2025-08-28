@@ -22,14 +22,18 @@ import (
 	"github.com/GoogleCloudPlatform/solutions/media/pkg/workflow"
 )
 
-func SetupListeners(config *cloud.Config, cloudClients *cloud.ServiceClients, ctx context.Context) {
+func SetupListeners(config *cloud.Config, cloudClients *cloud.ServiceClients, templateService *cloud.TemplateService, ctx context.Context) {
 	// TODO - Externalize the destination topic and ffmpeg command
 	mediaResizeWorkflow := workflow.NewMediaResizeWorkflow(config, cloudClients, "bin/ffmpeg", &model.MediaFormatFilter{Width: "240"})
 	cloudClients.PubSubListeners["HiResTopic"].SetCommand(mediaResizeWorkflow)
 	cloudClients.PubSubListeners["HiResTopic"].Listen(ctx)
 
-	mediaIngestion := workflow.NewMediaReaderPipeline(config, cloudClients, "creative-flash", "bin/ffprobe")
+	mediaIngestion := workflow.NewMediaReaderPipeline(config, cloudClients, "creative-flash", "bin/ffprobe", templateService)
 
 	cloudClients.PubSubListeners["LowResTopic"].SetCommand(mediaIngestion)
 	cloudClients.PubSubListeners["LowResTopic"].Listen(ctx)
+
+	mediaConfigUpdateWorkflow := workflow.NewMediaConfigUpdateWorkflow(config, templateService)
+	cloudClients.PubSubListeners["ConfigTopic"].SetCommand(mediaConfigUpdateWorkflow)
+	cloudClients.PubSubListeners["ConfigTopic"].Listen(ctx)
 }

@@ -30,7 +30,7 @@ func TestMediaChain(t *testing.T) {
 	traceCtx, span := tracer.Start(ctx, "media-ingestion-test")
 	defer span.End()
 
-	mediaIngestion := workflow.NewMediaReaderPipeline(config, cloudClients, "creative-flash", "bin/ffprobe")
+	mediaIngestion := workflow.NewMediaReaderPipeline(config, cloudClients, "creative-flash", "bin/ffprobe", templateService)
 
 	chainCtx := cor.NewBaseContext()
 	chainCtx.SetContext(traceCtx)

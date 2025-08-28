@@ -30,6 +30,7 @@ var err error
 var cloudClients *cloud.ServiceClients
 var ctx context.Context
 var config *cloud.Config
+var templateService *cloud.TemplateService
 
 const tName = "cloud.google.com/media/tests/workflow"
 
@@ -46,6 +47,7 @@ func TestMain(m *testing.M) {
 
 	// Get the config file
 	config = test.GetConfig()
+	templateService = cloud.NewTemplateService(config)
 
 	telemetry.SetupLogging()
 	shutdown, err := telemetry.SetupOpenTelemetry(ctx, config)

@@ -69,6 +69,12 @@ resource "local_file" "deployment_configuration" {
   })
 }
 
+module "config_resources" {
+  source        = "./modules/config_res"
+  region        = var.region
+  config_bucket = var.config_bucket
+}
+
 module "cloud_build_account" {
   source     = "github.com/terraform-google-modules/terraform-google-service-accounts?ref=a11d4127eab9b51ec9c9afdaf51b902cd2c240d9" #commit hash of version 4.0.0
   names      = ["cloud-build"]

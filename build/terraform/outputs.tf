@@ -27,6 +27,11 @@ output "low_res_bucket" {
   value       = var.low_res_bucket
 }
 
+output "config_bucket" {
+  description = "The name of the configuration files bucket."
+  value       = var.config_bucket
+}
+
 output "cloud_run_service_name" {
   description = "The name of the Cloud Run service to deploy."
   value       = local.solution_prefix

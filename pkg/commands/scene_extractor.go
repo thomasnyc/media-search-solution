@@ -37,7 +37,7 @@ import (
 type SceneExtractor struct {
 	cor.BaseCommand
 	generativeAIModel        *cloud.QuotaAwareGenerativeAIModel
-	templateByMediaType      map[string]*cloud.PromptTemplate
+	templateService          *cloud.TemplateService
 	numberOfWorkers          int
 	geminiInputTokenCounter  metric.Int64Counter
 	geminiOutputTokenCounter metric.Int64Counter
@@ -48,13 +48,13 @@ type SceneExtractor struct {
 func NewSceneExtractor(
 	name string,
 	model *cloud.QuotaAwareGenerativeAIModel,
-	templateByMediaType map[string]*cloud.PromptTemplate,
+	templateService *cloud.TemplateService,
 	numberOfWorkers int,
 	contentTypeParamName string) *SceneExtractor {
 	out := &SceneExtractor{
 		BaseCommand:          *cor.NewBaseCommand(name),
 		generativeAIModel:    model,
-		templateByMediaType:  templateByMediaType,
+		templateService:      templateService,
 		numberOfWorkers:      numberOfWorkers,
 		contentTypeParamName: contentTypeParamName}
 
@@ -104,7 +104,7 @@ func (s *SceneExtractor) Execute(context cor.Context) {
 
 	// Execute all scenes against the worker pool
 	for i, ts := range summary.SceneTimeStamps {
-		job := CreateJob(context.GetContext(), s.Tracer, s.geminiInputTokenCounter, s.geminiOutputTokenCounter, s.geminiRetryCounter, i, s.GetName(), summaryText, exampleText, *s.templateByMediaType[mediaType].ScenePrompt, videoFile, s.generativeAIModel, ts)
+		job := CreateJob(context.GetContext(), s.Tracer, s.geminiInputTokenCounter, s.geminiOutputTokenCounter, s.geminiRetryCounter, i, s.GetName(), summaryText, exampleText, *s.templateService.GetTemplateBy(mediaType).ScenePrompt, videoFile, s.generativeAIModel, ts)
 		jobs <- job
 	}
 
