@@ -30,7 +30,7 @@ contributions to this project and their work is sincerely appreciated.
 | Name              | Role         | Start Date | Bio                                                        |
 |-------------------|--------------|------------|------------------------------------------------------------|
 | Jay Cherian       | Project Lead | 10/15/2024 | [Linked In](https://www.linkedin.com/in/jay-cherian/)      |
-| Brennan Doyle     | Project Lead | 06/01/2025 | [Linked In](https://www.linkedin.com/in/brennan-doyle-3852441/)      |
+| Brennan Doyle     | Project Lead | 06/01/2025 | [Linked In](https://www.linkedin.com/in/brennan-doyle-3852641/)      |
 | Christopher Grant | Contributor  | 10/15/2024 | [Linked In](https://www.linkedin.com/in/christophergrant/) |
 | Ryan McGuinness   | Contributor  | 10/15/2024 | [Linked In](https://www.linkedin.com/in/rmcguinness/)      |
 | Charlie Wang      | Contributor  | 06/01/2025 | [Linked In](https://www.linkedin.com/in/charlie-wang-1b3b752/)      |
