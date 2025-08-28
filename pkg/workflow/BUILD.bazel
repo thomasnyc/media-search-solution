@@ -19,6 +19,7 @@ go_library(
         "media_embedding_generator_workflow.go",
         "media_reader_workflow.go",
         "media_resize_workflow.go",
+        "media_config_update_workflow.go",
     ],
     data = [
         "//:copy_ffmpeg",

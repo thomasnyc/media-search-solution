@@ -126,6 +126,18 @@ type Config struct {
 	ContentType        ContentType                       `toml:"content_type"`          // Content type configuration.
 }
 
+func (c *Config) Replace(newConfig *Config) {
+	c.Application = newConfig.Application
+	c.Storage = newConfig.Storage
+	c.BigQueryDataSource = newConfig.BigQueryDataSource
+	c.PromptTemplates = newConfig.PromptTemplates
+	c.TopicSubscriptions = newConfig.TopicSubscriptions
+	c.EmbeddingModels = newConfig.EmbeddingModels
+	c.AgentModels = newConfig.AgentModels
+	c.Categories = newConfig.Categories
+	c.ContentType = newConfig.ContentType
+}
+
 // NewConfig creates a new Config instance with initialized maps.
 func NewConfig() *Config {
 	return &Config{

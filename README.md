@@ -93,6 +93,7 @@ Once the project is set up, the identity deploying the Infrastructure-as-Code (I
     |project_id|Your Google Cloud project ID.|
     |high_res_bucket|A unique name for the Cloud Storage bucket that will store high-resolution media (e.g., "media-high-res-your-project-id").|
     |low_res_bucket|A unique name for the Cloud Storage bucket that will store low-resolution media (e.g., "media-low-res-your-project-id").|
+    |config_bucket|A unique name for the Cloud Storage bucket that will store solution configuration files (e.g., "media-search-configs-your-project-id").|
     |region|(Optional) The Google Cloud region for deployment. Defaults to `us-central1`.|
 
 1. **Navigate to the Terraform directory**:
@@ -164,6 +165,9 @@ You can monitor the progress of the video processing by viewing the logs of the 
 echo "https://console.cloud.google.com/run/detail/$(terraform -chdir="build/terraform" output -raw cloud_run_region)/$(terraform -chdir="build/terraform" output -raw cloud_run_service_name)/logs?project=$(terraform -chdir="build/terraform" output -raw project_id)"
 ```
 Look for log entries related to the processing of your uploaded file. A key log entry to watch for is: `Persisting data`. This message indicates that the video analysis is complete and the extracted metadata is being written to BigQuery.
+
+**NOTE:** The Cloud Run service scales to zero after 15 minutes of inactivity (`[INFO] Shutdown Server ...` will appear in logs). In this case, visit the web application to activate a new instance.
+
 
 ### 3. Searching for Media Content
 

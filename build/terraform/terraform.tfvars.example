@@ -9,3 +9,6 @@ project_id      = ""
 
 # The Google Cloud region for deployment. Defaults to us-central1.
 region          = "us-central1"
+
+# Defining the bucket name for Media Search solution configuration files. Please define a unique name as this bucket will be created in your project.
+config_bucket   = ""

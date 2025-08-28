@@ -19,6 +19,7 @@ CONTAINER_IMAGE_URI=$(terraform -chdir="$TERRAFORM_DIR" output -raw container_im
 SERVICE_ACCOUNT_EMAIL=$(terraform -chdir="$TERRAFORM_DIR" output -raw service_account_email)
 HIGH_RES_BUCKET=$(terraform -chdir="$TERRAFORM_DIR" output -raw high_res_bucket)
 LOW_RES_BUCKET=$(terraform -chdir="$TERRAFORM_DIR" output -raw low_res_bucket)
+CONFIG_BUCKET=$(terraform -chdir="$TERRAFORM_DIR" output -raw config_bucket)
 
 # Check if the variables are empty
 if [ -z "$PROJECT_ID" ] || [ -z "$CLOUD_RUN_SERVICE_NAME" ] || [ -z "$CLOUD_RUN_REGION" ] || [ -z "$CONTAINER_IMAGE_URI" ] || [ -z "$SERVICE_ACCOUNT_EMAIL" ] || [ -z "$HIGH_RES_BUCKET" ] || [ -z "$LOW_RES_BUCKET" ]; then
@@ -40,6 +41,20 @@ else
     echo "No existing service to undeploy."
 fi
 
+if [ "$(gsutil -q stat gs://${CONFIG_BUCKET}/.env.toml ; echo $?)" = 0 ]; then
+  echo ".env.toml file is already uploaded to gs://${CONFIG_BUCKET}"
+else
+  echo "Uploading .env.toml file to gs://${CONFIG_BUCKET}"
+  gsutil cp "${PROJECT_ROOT}/configs/.env.toml" "gs://${CONFIG_BUCKET}/.env.toml"
+fi
+
+if [ "$(gsutil -q stat gs://${CONFIG_BUCKET}/.env.local.toml ; echo $?)" = 0 ]; then
+  echo ".env.local.toml file is already uploaded to gs://${CONFIG_BUCKET}"
+else
+  echo "Uploading .env.local.toml file to gs://${CONFIG_BUCKET}"
+  gsutil cp "${PROJECT_ROOT}/configs/.env.local.toml" "gs://${CONFIG_BUCKET}/.env.local.toml"
+fi
+
 # Deploy the service to Cloud Run
 echo "Deploying service to Cloud Run..."
 gcloud run deploy "$CLOUD_RUN_SERVICE_NAME" \
@@ -51,6 +66,9 @@ gcloud run deploy "$CLOUD_RUN_SERVICE_NAME" \
   --add-volume-mount volume=high-res-bucket,mount-path=/mnt/"$HIGH_RES_BUCKET" \
   --add-volume name=low-res-bucket,type=cloud-storage,bucket="$LOW_RES_BUCKET" \
   --add-volume-mount volume=low-res-bucket,mount-path=/mnt/"$LOW_RES_BUCKET" \
+  --add-volume name=config-bucket,type=cloud-storage,bucket="$CONFIG_BUCKET" \
+  --add-volume-mount volume=config-bucket,mount-path=/mnt/"$CONFIG_BUCKET" \
+  --set-env-vars GCP_CONFIG_PREFIX=/mnt/"$CONFIG_BUCKET" \
   --cpu=8 \
   --memory=8Gi \
   --no-cpu-throttling \

@@ -34,11 +34,22 @@ type StateManager struct {
 var state = &StateManager{}
 
 func SetupOS() (err error) {
-	err = os.Setenv(cloud.EnvConfigFilePrefix, "configs")
-	if err != nil {
-		return err
+	configPrefixValue := os.Getenv(cloud.EnvConfigFilePrefix)
+	log.Printf("Config file prefix: %s\n", configPrefixValue)
+	if configPrefixValue == "" {
+		err = os.Setenv(cloud.EnvConfigFilePrefix, "configs")
+		if err != nil {
+			return err
+		}
 	}
-	err = os.Setenv(cloud.EnvConfigRuntime, "local")
+
+	configRuntimeValue := os.Getenv(cloud.EnvConfigRuntime)
+	if configRuntimeValue == "" {
+		err = os.Setenv(cloud.EnvConfigRuntime, "local")
+		if err != nil {
+			return err
+		}
+	}
 	return err
 }
 
@@ -90,6 +101,6 @@ func InitState(ctx context.Context) {
 	embeddingGenerator := workflow.NewMediaEmbeddingGeneratorWorkflow(config, cloudClients)
 	embeddingGenerator.StartTimer()
 
-	SetupListeners(config, cloudClients, ctx)
+	SetupListeners(config, cloudClients, cloud.NewTemplateService(config), ctx)
 
 }

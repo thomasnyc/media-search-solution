@@ -31,7 +31,7 @@ type MediaSummaryCreator struct {
 	cor.BaseCommand
 	config                     *cloud.Config
 	generativeAIModel          *cloud.QuotaAwareGenerativeAIModel
-	templateByMediaType        map[string]*cloud.PromptTemplate
+	templateService            *cloud.TemplateService
 	contentTypeParamName       string
 	mediaLengthOutputParamName string
 	geminiInputTokenCounter    metric.Int64Counter
@@ -43,7 +43,7 @@ func NewMediaSummaryCreator(
 	name string,
 	config *cloud.Config,
 	generativeAIModel *cloud.QuotaAwareGenerativeAIModel,
-	templateByMediaType map[string]*cloud.PromptTemplate,
+	templateService *cloud.TemplateService,
 	mediaLengthOutputParamName string,
 	contentTypeParamName string) *MediaSummaryCreator {
 
@@ -51,7 +51,7 @@ func NewMediaSummaryCreator(
 		BaseCommand:                *cor.NewBaseCommand(name),
 		config:                     config,
 		generativeAIModel:          generativeAIModel,
-		templateByMediaType:        templateByMediaType,
+		templateService:            templateService,
 		mediaLengthOutputParamName: mediaLengthOutputParamName,
 		contentTypeParamName:       contentTypeParamName,
 	}
@@ -86,7 +86,7 @@ func (t *MediaSummaryCreator) Execute(context cor.Context) {
 	mediaType := context.Get(t.contentTypeParamName).(string)
 
 	var buffer bytes.Buffer
-	err := t.templateByMediaType[mediaType].SummaryPrompt.Execute(&buffer, t.GenerateParams(context))
+	err := t.templateService.GetTemplateBy(mediaType).SummaryPrompt.Execute(&buffer, t.GenerateParams(context))
 	if err != nil {
 		t.GetErrorCounter().Add(context.GetContext(), 1)
 		context.AddError(t.GetName(), err)
@@ -102,7 +102,7 @@ func (t *MediaSummaryCreator) Execute(context cor.Context) {
 	}
 
 	// Get the response
-	out, err := cloud.GenerateMultiModalResponse(context.GetContext(), t.geminiInputTokenCounter, t.geminiOutputTokenCounter, t.geminiRetryCounter, 0, t.generativeAIModel, t.templateByMediaType[mediaType].SystemInstructions, contents, model.NewMediaSummarySchema())
+	out, err := cloud.GenerateMultiModalResponse(context.GetContext(), t.geminiInputTokenCounter, t.geminiOutputTokenCounter, t.geminiRetryCounter, 0, t.generativeAIModel, t.templateService.GetTemplateBy(mediaType).SystemInstructions, contents, model.NewMediaSummarySchema())
 	if err != nil {
 		t.GetErrorCounter().Add(context.GetContext(), 1)
 		context.AddError(t.GetName(), err)

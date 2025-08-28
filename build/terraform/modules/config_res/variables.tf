@@ -1,4 +1,4 @@
-// Copyright 2024 Google, LLC
+// Copyright 2025 Google, LLC
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-variable "project_id" {
-  type    = string
-  default = ""
-}
-
 variable "region" {
-  type    = string
-  default = "us-central1"
-}
-
-variable "media_low_res_schema_name" {
-  type    = string
-  default = "media_low_res_schema"
-}
-
-variable "low_res_bucket" {
-  type = string
-}
-
-variable "high_res_bucket" {
-  type = string
+  type        = string
+  description = "Project Default Region"
 }
 
 variable "config_bucket" {
-  type = string
+  type        = string
+  description = "The name media search configuration bucket"
 }

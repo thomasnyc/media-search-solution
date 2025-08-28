@@ -49,10 +49,6 @@ WORKDIR /app
 # The path comes from how Bazel structures its output: bazel-bin/path/to/package/target_
 COPY --from=builder /src/bazel-bin/web/apps/api_server/api_server_/api_server .
 
-# Copy the configuration files.
-# The application will need these to connect to Google Cloud services.
-COPY --from=builder /src/configs/ configs/
-
 # Copy the static assets built by the media-search app.
 COPY --from=builder /src/bazel-bin/web/apps/media-search/dist/ web/apps/media-search/dist/
 

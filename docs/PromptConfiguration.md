@@ -196,4 +196,12 @@ Example Output:
 
 ```
 
-After saving your changes, the pipeline will automatically use your new prompts for any video it classifies as a "news_report".
+## Upload Configuration Changes
+
+To apply prompt customizations, upload the modified `configs/.env.toml` file to the configuration bucket in Cloud Storage using the following command from the project root:
+
+```sh
+gsutil cp configs/.env.toml gs://$(terraform -chdir="build/terraform" output -raw config_bucket)/.env.toml
+```
+
+The Media Search service automatically detects this change, reloads the configuration, and uses the new prompts for all subsequent video processing.

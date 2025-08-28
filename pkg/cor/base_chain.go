@@ -40,6 +40,10 @@ func (c *BaseChain) AddCommand(command Command) Chain {
 	return c
 }
 
+func (c *BaseChain) GetCommands() []Command {
+	return c.commands
+}
+
 func (c *BaseChain) IsExecutable(context Context) bool {
 	return context.GetContext() != nil
 }
