@@ -57,6 +57,7 @@ echo
 echo "Setting active gcloud project to '$PROJECT_ID'..."
 gcloud config unset billing/quota_project
 gcloud config set project "${PROJECT_ID}"
+gcloud auth application-default set-quota-project "$PROJECT_ID"
 echo
 
 # --- API Enablement ---
