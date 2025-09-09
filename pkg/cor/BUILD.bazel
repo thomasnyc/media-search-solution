@@ -24,7 +24,7 @@ go_library(
         "base_context.go",
         "interfaces.go",
     ],
-    importpath = "github.com/GoogleCloudPlatform/solutions/media/pkg/cor",
+    importpath = "github.com/GoogleCloudPlatform/media-search-solution/pkg/cor",
     visibility = ["//visibility:public"],
     deps = [
         "@io_opentelemetry_go_otel//:otel",

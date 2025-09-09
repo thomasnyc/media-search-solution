@@ -22,8 +22,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cor"
 	"go.opentelemetry.io/otel/metric"
 	"google.golang.org/genai"
 )

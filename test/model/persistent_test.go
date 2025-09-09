@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/model"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/model"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )

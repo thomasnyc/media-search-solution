@@ -21,10 +21,10 @@ import (
 	"strings"
 
 	"cloud.google.com/go/storage"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/commands"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/model"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/commands"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cor"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/model"
 )
 
 // DefaultFfmpegCommand The default command requires ffmpeg on the path of the running computer.

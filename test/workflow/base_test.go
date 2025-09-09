@@ -22,9 +22,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/telemetry"
-	"github.com/GoogleCloudPlatform/solutions/media/test"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/telemetry"
+	"github.com/GoogleCloudPlatform/media-search-solution/test"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel"
 )

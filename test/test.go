@@ -21,7 +21,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud"
 )
 
 type StateManager struct {

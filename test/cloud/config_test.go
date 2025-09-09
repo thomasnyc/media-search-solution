@@ -19,7 +19,7 @@ package cloud_test
 import (
 	"testing"
 
-	"github.com/GoogleCloudPlatform/solutions/media/test"
+	"github.com/GoogleCloudPlatform/media-search-solution/test"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	"cloud.google.com/go/bigquery"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/model"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/model"
 	"google.golang.org/api/iterator"
 	"google.golang.org/genai"
 )

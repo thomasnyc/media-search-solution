@@ -28,7 +28,7 @@ go_library(
         "utils.go",
         "wrappers.go",
     ],
-    importpath = "github.com/GoogleCloudPlatform/solutions/media/pkg/cloud",
+    importpath = "github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/cor",
