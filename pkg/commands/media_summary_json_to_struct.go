@@ -21,9 +21,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/model"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cor"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/model"
 )
 
 type MediaSummaryJsonToStruct struct {

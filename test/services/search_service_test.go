@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/services"
-	"github.com/GoogleCloudPlatform/solutions/media/test"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/services"
+	"github.com/GoogleCloudPlatform/media-search-solution/test"
 	"github.com/zeebo/assert"
 )
 

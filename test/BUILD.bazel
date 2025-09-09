@@ -19,7 +19,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "test",
     srcs = ["test.go"],
-    importpath = "github.com/GoogleCloudPlatform/solutions/media/test",
+    importpath = "github.com/GoogleCloudPlatform/media-search-solution/test",
     visibility = ["//visibility:public"],
     deps = ["//pkg/cloud"],
 )

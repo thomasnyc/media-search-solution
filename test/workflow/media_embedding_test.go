@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cor"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/workflow"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/workflow"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/codes"
 )

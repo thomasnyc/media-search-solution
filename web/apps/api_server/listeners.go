@@ -20,9 +20,9 @@ package main
 import (
 	"context"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/model"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/workflow"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/model"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/workflow"
 )
 
 func SetupListeners(config *cloud.Config, cloudClients *cloud.ServiceClients, templateService *cloud.TemplateService, ctx context.Context) {

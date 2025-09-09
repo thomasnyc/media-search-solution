@@ -27,7 +27,7 @@ import (
 	mexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric"
 	telemetryexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cloud"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cloud"
 	"go.opentelemetry.io/contrib/detectors/gcp"
 	"go.opentelemetry.io/contrib/propagators/autoprop"
 	"go.opentelemetry.io/otel"
@@ -97,7 +97,7 @@ func SetupOpenTelemetry(ctx context.Context, config *cloud.Config) (shutdown fun
 	)
 
 	// Setup Namespace Meter
-	otel.Meter("github.com/GoogleCloudPlatform/solutions/media")
+	otel.Meter("github.com/GoogleCloudPlatform/media-search-solution")
 
 	shutdownFuncs = append(shutdownFuncs, mProvider.Shutdown)
 	otel.SetMeterProvider(mProvider)

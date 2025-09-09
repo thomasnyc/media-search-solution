@@ -29,7 +29,7 @@ go_library(
         "//configs:.env.local.toml",
         "//configs:.env.toml",
     ],
-    importpath = "github.com/GoogleCloudPlatform/solutions/media/pkg/services",
+    importpath = "github.com/GoogleCloudPlatform/media-search-solution/pkg/services",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/model",

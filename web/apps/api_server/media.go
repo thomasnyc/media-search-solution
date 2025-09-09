@@ -20,7 +20,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/model"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/model"
 	"github.com/gin-gonic/gin"
 )
 

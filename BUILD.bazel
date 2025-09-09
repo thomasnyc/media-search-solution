@@ -19,7 +19,7 @@ load("@rules_multirun//:defs.bzl", "command", "multirun")
 load("//:build/copy_file_groups.bzl", "copy_file_groups")
 
 gazelle(name = "gazelle")
-# gazelle:prefix github.com/GoogleCloudPlatform/solutions/media
+# gazelle:prefix github.com/GoogleCloudPlatform/media-search-solution
 
 config_setting(
     name = "linux_x86_64",

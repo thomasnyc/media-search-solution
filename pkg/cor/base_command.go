@@ -37,7 +37,7 @@ type BaseCommand struct {
 }
 
 func NewBaseCommand(name string) *BaseCommand {
-	meter := otel.Meter("github.com/GoogleCloudPlatform/solutions/media")
+	meter := otel.Meter("github.com/GoogleCloudPlatform/media-search-solution")
 	successCounter, err := meter.Int64Counter(fmt.Sprintf("%s.counter.success", name))
 	if err != nil {
 		log.Printf("error creating success counter: %s\n", name)

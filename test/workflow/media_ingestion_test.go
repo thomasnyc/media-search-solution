@@ -22,9 +22,9 @@ import (
 	"log"
 	"testing"
 
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/cor"
-	"github.com/GoogleCloudPlatform/solutions/media/pkg/workflow"
-	"github.com/GoogleCloudPlatform/solutions/media/test"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/cor"
+	"github.com/GoogleCloudPlatform/media-search-solution/pkg/workflow"
+	"github.com/GoogleCloudPlatform/media-search-solution/test"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/codes"
 )

@@ -22,7 +22,7 @@ go_library(
         "setup_logging.go",
         "setup_trace.go",
     ],
-    importpath = "github.com/GoogleCloudPlatform/solutions/media/pkg/telemetry",
+    importpath = "github.com/GoogleCloudPlatform/media-search-solution/pkg/telemetry",
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/cloud",
