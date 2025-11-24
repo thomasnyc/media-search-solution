@@ -74,6 +74,10 @@ Once the project is set up, the identity deploying the Infrastructure-as-Code (I
 *   **Cloud Run Admin** (`roles/run.admin`): To deploy the application to Cloud Run.
 *   **IAP Policy Admin** (`roles/iap.admin`): To grant access to Application's web interface.
 
+### Reference Architecture Diagram
+
+![alt_text](images/architecture-diagram.png "image_tooltip")
+
 ### Create infrastructure resources on Google Cloud
 1. **Set up your environment.** To deploy the solution, you can use [Cloud Shell](https://shell.cloud.google.com/?show=ide%2Cterminal), which comes pre-installed with the necessary tools. Alternatively, if you prefer a local terminal, ensure you have installed and configured the following:
     * [Git CLI](https://github.com/git-guides/install-git)
